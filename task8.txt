@@ -1,0 +1,174 @@
+total number of tasks: 4088
+scheduler initialized 
+about to create 4 VMs for machine 0
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 0 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 1
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 1 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 2
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 2 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 3
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 3 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 4
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 4 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 5
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 5 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 6
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 6 initialized with VMs.
+S state: 0
+about to create 4 VMs for machine 7
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+creating a VM
+attaching a VM
+Machine 7 initialized with VMs.
+S state: 0
+Simulating state change for machine 8
+Simulating state change for machine 9
+Simulating state change for machine 10
+Simulating state change for machine 11
+Simulating state change for machine 12
+Simulating state change for machine 13
+Simulating state change for machine 14
+Simulating state change for machine 15
+Entered PeriodicCheck at time 60000
+HandleNewTask(): Received new task 0 at time 62073
+entered NewTask for task 0
+VM 0: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 1: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 2: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 3: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 4: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 5: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 6: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 7: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 8: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 9: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 10: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 11: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 12: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 13: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 14: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 15: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 16: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 17: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 18: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 19: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 20: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 21: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 22: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 23: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 24: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 25: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 26: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 27: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 28: active_tasks = [], memory_used = 32/16384, type = 0, machine = 7
+VM 29: active_tasks = [], memory_used = 32/16384, type = 0, machine = 7
+VM 30: active_tasks = [], memory_used = 32/16384, type = 0, machine = 7
+VM 31: active_tasks = [], memory_used = 32/16384, type = 0, machine = 7
+Task 0 assigned to VM 31 on Machine 7
+Entered PeriodicCheck at time 120000
+Entered PeriodicCheck at time 180000
+Entered PeriodicCheck at time 240000
+Entered PeriodicCheck at time 300000
+TaskComplete(): Task 0 complete at 330894
+VM 31 is now idle.
+HandleNewTask(): Received new task 1 at time 333607
+entered NewTask for task 1
+VM 0: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 1: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 2: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 3: active_tasks = [], memory_used = 32/16384, type = 0, machine = 0
+VM 4: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 5: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 6: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 7: active_tasks = [], memory_used = 32/16384, type = 0, machine = 1
+VM 8: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 9: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 10: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 11: active_tasks = [], memory_used = 32/16384, type = 0, machine = 2
+VM 12: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 13: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 14: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 15: active_tasks = [], memory_used = 32/16384, type = 0, machine = 3
+VM 16: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 17: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 18: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 19: active_tasks = [], memory_used = 32/16384, type = 0, machine = 4
+VM 20: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 21: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 22: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 23: active_tasks = [], memory_used = 32/16384, type = 0, machine = 5
+VM 24: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 25: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 26: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 27: active_tasks = [], memory_used = 32/16384, type = 0, machine = 6
+VM 28: active_tasks = [], memory_used = 24/16384, type = 0, machine = 7
+VM 29: active_tasks = [], memory_used = 24/16384, type = 0, machine = 7
+VM 30: active_tasks = [], memory_used = 24/16384, type = 0, machine = 7
+VM 31: active_tasks = [], memory_used = 24/16384, type = 0, machine = 7

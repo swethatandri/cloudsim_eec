@@ -19,7 +19,7 @@ typedef uint64_t EventId_t;
 typedef unsigned CPUId_t;
 typedef unsigned MachineId_t;
 typedef unsigned VMId_t;
-typedef unsigned int TaskId_t;
+typedef unsigned TaskId_t;
 
 typedef enum {
     P0,         // CPU at normal frequency
