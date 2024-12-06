@@ -19,6 +19,9 @@ static bool migrating = false;
 static unsigned active_machines = 16;
 bool is_initializing = true;
 
+static int total_tasks = 0;
+static int completed_tasks = 0;
+
 std::map<MachineId_t, std::queue<TaskId_t>> task_queues;
 
 
@@ -63,29 +66,13 @@ VMId_t getBestVM(TaskInfo_t task_info, const std::vector<VMId_t>& vms){
       VMInfo_t vm_info = VM_GetInfo(vm);
       MachineInfo_t machine_info = Machine_GetInfo(vm_info.machine_id);
 
-      //cout << "entered get Best VM for loop." << " Best VM currently has the id " << best_vm << endl;
-
 
    if (!(migrating_vms.find(vm) != migrating_vms.end())) {
 
 
-
-       cout << "VM " << vm
-     << ": active_tasks = [";
-   for (const auto& task : vm_info.active_tasks) {
-       cout << task << " ";
-     }
-      cout << "], memory_used = " << machine_info.memory_used
-      << "/" << machine_info.memory_size
-      << ", type = " << vm_info.vm_type
-       << ", machine = " << machine_info.machine_id << endl;
-
-       
-      
-
       if (vm_info.active_tasks.size() <=10 && vm_info.vm_type == vmType &&
          machine_info.cpu == cpuType &&
-         machine_info.memory_size - machine_info.memory_used >= memory) {
+         machine_info.memory_size - machine_info.memory_used >= memory && task_queues[machine_info.machine_id].size() < 3) {
 
       
           size_t load = vm_info.active_tasks.size();
@@ -97,16 +84,14 @@ VMId_t getBestVM(TaskInfo_t task_info, const std::vector<VMId_t>& vms){
               best_vm_load = load;
           }
       }
-    
   }
 
-
   }
-
 
   return best_vm;
 
 }
+
 
 
 void Scheduler::Init() {
@@ -123,42 +108,43 @@ void Scheduler::Init() {
        MachineInfo_t machine = Machine_GetInfo(MachineId_t(i));
        machines.push_back(MachineId_t(i));
       
-       cout << "about to create 4 VMs for machine " << i << endl;
+       //cout << "about to create 4 VMs for machine " << i << endl;
        for (unsigned j = 0; j < machine.num_cpus / 2; j++) {
-           cout << "creating a VM" << endl;
+           //cout << "creating a VM" << endl;
            VMId_t newVm = VM_Create(LINUX, machine.cpu);
            VMInfo_t newVMinfo = VM_GetInfo(newVm);
            vms.push_back(newVm);
 
 
-           cout << "attaching a VM" << endl;
+           //cout << "attaching a VM" << endl;
            VM_Attach(newVm, machines[i]);
            machine_to_vms[machine.machine_id].push_back(newVMinfo);
            addVMToMachine(machine, newVMinfo);
        }
       
-       cout << "Machine " << i << " initialized with VMs." << endl;
-       cout << "S state: " << machine.s_state << endl;
+       //cout << "Machine " << i << " initialized with VMs." << endl;
+       //cout << "S state: " << machine.s_state << endl;
    }
 
 
    for (unsigned i = initial_active_machines; i < Machine_GetTotal(); i++) {
+    //cout << "not using machine: " << i << endl;
    MachineId_t machine_id = MachineId_t(i);
 
 
    // Skip machines already transitioning
    if (transitioning_machines.find(machine_id) != transitioning_machines.end()) {
-       cout << "Machine " << machine_id << " is already transitioning. Skipping." << endl;
+       //cout << "Machine " << machine_id << " is already transitioning. Skipping." << endl;
        continue;
    }
 
 
    // Add to transitioning machines and set state to S5
    transitioning_machines.insert(machine_id);
-   Machine_SetState(machine_id, S5);
+   //Machine_SetState(machine_id, S5);
 
 
-   cout << "Simulating state change for machine " << machine_id << endl;
+   //cout << "Simulating state change for machine " << machine_id << endl;
    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simulate delay
 }
 
@@ -238,69 +224,110 @@ void Scheduler::MigrationComplete(Time_t time, VMId_t vm_id) {
 
 
 void Scheduler::NewTask(Time_t now, TaskId_t task_id) {
-    cout << "entered NewTask for task " << task_id << endl;
+    //cout << "NewTask(): Received task " << task_id << " at time " << now << endl;
 
     TaskInfo_t task_info = GetTaskInfo(task_id);
     VMId_t selected_vm = getBestVM(task_info, vms);
+    //cout << "NewTask(): Best VM selected: " << selected_vm << endl;
 
     if (selected_vm != -1) {
-        cout << "best selected vm is: " << selected_vm << endl;
         MachineInfo_t machine_info = Machine_GetInfo(VM_GetInfo(selected_vm).machine_id);
 
         if (machine_info.active_tasks < machine_info.num_cpus) {
-            // Assign task directly
-            VM_AddTask(selected_vm, task_id, HIGH_PRIORITY);
-             task_to_vm_map[task_id] = selected_vm;
-            machine_info.active_tasks++;
-            cout << "Task " << task_id << " assigned to VM " << selected_vm << " on Machine " << machine_info.machine_id << endl;
+            try {
+                VM_AddTask(selected_vm, task_id, HIGH_PRIORITY);
+                task_to_vm_map[task_id] = selected_vm;
+                machine_info.active_tasks++;
+            
+            } catch (const std::exception &e) {
+                cout << "NewTask(): Error assigning task " << task_id 
+                     << " to VM " << selected_vm << ": " << e.what() << endl;
+            }
         } else {
-            // Enqueue task for later scheduling
+          
             task_queues[machine_info.machine_id].push(task_id);
-            cout << "Task " << task_id << " added to queue for Machine " << machine_info.machine_id << endl;
         }
     } else {
-         // Fallback: Activate a new machine
-         MachineId_t selected_machine;
-       for (auto &machine : machines) {
-       MachineInfo_t machine_info = Machine_GetInfo(machine);
-       if (machine_info.s_state == S5 && transitioning_machines.find(machine) == transitioning_machines.end()) {
-           transitioning_machines.insert(machine);
-           Machine_SetState(machine, S0);
-           selected_machine = machine;
+       
+
+        MachineId_t selected_machine = -1;
+
+        for (auto &machine : transitioning_machines) {
+            MachineInfo_t machine_info = Machine_GetInfo(machine);
+
+            if ((machine_info.s_state == S5 || machine_info.s_state == S0)) {
+            
+
+                if(machine_info.cpu == task_info.required_cpu){
+
+                transitioning_machines.erase(machine);
+                machines.push_back(machine);
+                Machine_SetState(machine, S0);
+                selected_machine = machine;
+                break;
+
+                }
+            }
+        }
+
+        if (selected_machine == -1) {
+            
+            return;
+        }
+
+       
+        while (Machine_GetInfo(selected_machine).s_state != S0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
+
+        MachineInfo_t machine_info = Machine_GetInfo(selected_machine);
+        for (unsigned j = 0; j < machine_info.num_cpus / 2; j++) {
+            try {
+                VMId_t new_vm = VM_Create(task_info.required_vm, machine_info.cpu);
+                VMInfo_t new_vm_info = VM_GetInfo(new_vm);
+                vms.push_back(new_vm);
+
+                VM_Attach(new_vm, selected_machine);
+                addVMToMachine(machine_info, new_vm_info);
+
+        
+            } catch (const std::exception &e) {
+                cout << "NewTask(): Error creating VM for machine " << selected_machine 
+                     << ": " << e.what() << endl;
+            }
+        }
+
+        bool task_assigned = false;
+        for (auto &vm : machine_to_vms[selected_machine]) {
+            VMInfo_t vm_info = VM_GetInfo(vm.vm_id);
+            if (vm_info.active_tasks.size() < 10) {
+                try {
+                    VM_AddTask(vm.vm_id, task_id, HIGH_PRIORITY);
+                    task_to_vm_map[task_id] = vm.vm_id;
+                  
+                    task_assigned = true;
+                    break;
+                } catch (const std::exception &e) {
+                    cout << "NewTask(): Error assigning task " << task_id 
+                         << " to VM " << vm.vm_id << ": " << e.what() << endl;
+                }
+            }
+        }
+
+        if (!task_assigned) {
            
-           if (Machine_GetInfo(selected_machine).s_state == S0) { // Confirm the machine is active
-      for (auto &vm : vms) {
-          VMInfo_t vmInfo = VM_GetInfo(vm);
-
-
-          // Check if the VM belongs to the newly activated machine
-          if (vmInfo.machine_id == Machine_GetInfo(selected_machine).machine_id) {
-              try {
-                  VM_AddTask(vmInfo.vm_id, task_id, HIGH_PRIORITY);
-                  cout << "NewTask(): Task " << to_string(task_id)
-                       << " added to new VM " << to_string(vmInfo.vm_id)
-                       << " on machine " << to_string(machine) << endl;
-                  return; // Task successfully assigned, exit the loop
-              } catch (const std::exception &e) {
-                  cout << "NewTask(): Error during task assignment: " << string(e.what()) << endl;
-                  throw; // Rethrow exception for logging or higher-level handling
-              }
-          }
-      }
-  }
-
-           return;
-       }
-   }
-
+            task_queues[selected_machine].push(task_id);
+        }
     }
 }
+
 
 
  
 
 void Scheduler::PeriodicCheck(Time_t now) {
-    cout << "Entered PeriodicCheck at time " << now << endl;
+    // << "Entered PeriodicCheck at time " << now << endl;
 
     for (auto &machine : machines) {
         MachineInfo_t machine_info = Machine_GetInfo(machine);
@@ -313,7 +340,7 @@ void Scheduler::PeriodicCheck(Time_t now) {
                 if (VM_GetInfo(vm.vm_id).active_tasks.size() < 10) {
                     VM_AddTask(vm.vm_id, next_task, MID_PRIORITY);
                     machine_info.active_tasks++;
-                    cout << "Task " << next_task << " dequeued and assigned to VM " << vm.vm_id << endl;
+                    //cout << "Task " << next_task << " dequeued and assigned to VM " << vm.vm_id << endl;
                     break;
                 }
             }
@@ -347,7 +374,9 @@ SimOutput("Shutdown(): All resources deallocated. Goodbye!", 4);
 
 
 void Scheduler::TaskComplete(Time_t now, TaskId_t task_id) {
-    cout << "TaskComplete(): Task " << task_id << " complete at " << now << endl;
+    //cout << "TaskComplete(): Task " << task_id << " complete at " << now << endl;
+    completed_tasks++;
+    //cout << "completed tasks: " << completed_tasks;
 
     // Find the VM associated with the task
     if (task_to_vm_map.find(task_id) == task_to_vm_map.end()) {
@@ -365,7 +394,7 @@ void Scheduler::TaskComplete(Time_t now, TaskId_t task_id) {
    
     // Check if VM is now idle
     if (active_tasks.empty()) {
-        cout << "VM " << vm_id << " is now idle." << endl;
+        //cout << "VM " << vm_id << " is now idle." << endl;
 
     
     }
@@ -378,7 +407,7 @@ void Scheduler::TaskComplete(Time_t now, TaskId_t task_id) {
         active_tasks.push_back(next_task);
         task_to_vm_map[next_task] = vm_id;
         machine_info.active_tasks++;
-        cout << "Task " << next_task << " dequeued and assigned to VM " << vm_id << endl;
+       // cout << "Task " << next_task << " dequeued and assigned to VM " << vm_id << endl;
     }
 }
 
@@ -398,11 +427,7 @@ Scheduler.Init();
 
 
 void HandleNewTask(Time_t time, TaskId_t task_id) {
- cout << "HandleNewTask(): Received new task "
-       << task_id
-       << " at time "
-       << time
-       << endl;
+ 
 Scheduler.NewTask(time, task_id);
 }
 
@@ -463,9 +488,6 @@ cout << "Simulation run finished in " << double(time)/1000000 << " seconds" << e
 
 void StateChangeComplete(Time_t time, MachineId_t machine_id) {
    MachineInfo_t machine = Machine_GetInfo(machine_id);
-   cout << "StateChangeComplete: Machine " << machine_id
-        << " transitioned to state " << machine.s_state
-        << " at time " << time << endl;
 
 
    // Remove from transitioning set
@@ -475,7 +497,7 @@ void StateChangeComplete(Time_t time, MachineId_t machine_id) {
    if (machine.s_state == S5) {
        cout << "Machine " << machine_id << " is now powered down." << endl;
    } else if (machine.s_state == S0) {
-       cout << "Machine " << machine_id << " is now active." << endl;
+       //cout << "Machine " << machine_id << " is now active." << endl;
    }
 }
 

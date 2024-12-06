@@ -1,0 +1,14 @@
+Algorithm: queue based approach with load-based scheduling (I did this alone so this is my only algorithm)
+
+File: Hour
+
+didn't turn off machines due to errors, but in init, VMs were only added to the first half. 
+
+Simulation run finished in 3603.48 seconds
+shutting down... 
+Simulation complete at time 3603480000
+Total Energy Consumed: 7.26374 KW-Hour
+SLA Compliance Rates:
+SLA0: 0%
+SLA1: 0%
+SLA2: 0%
